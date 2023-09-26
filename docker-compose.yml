@@ -1,0 +1,12 @@
+version: '2'
+services:
+  nchan:
+    restart: always
+    image: lloydzhou/nchan
+    ports:
+      - "80"
+    volumes:
+      - ./nchan.conf:/etc/nginx/conf.d/default.conf
+
+
+
