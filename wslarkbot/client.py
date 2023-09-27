@@ -154,7 +154,7 @@ class Bot(object):
     def reply_card(self, message_id, content):
         return self.reply(message_id, content, msg_type='interactive')
 
-    async def update_card(self, message_id, content):
+    def update_card(self, message_id, content):
         return self.update(message_id, content)
 
     def on_message(self, data, *args, **kwargs):
