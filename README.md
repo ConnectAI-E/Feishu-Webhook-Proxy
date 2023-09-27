@@ -1,7 +1,7 @@
 # Feishu-Webhook-Proxy
 
 1. 将飞书webhook代理成websocket
-2. 企业自建应用不用创建公网的回调地址，直接本地使用websocket客户端连上这个转发地址就可以了
+2. 企业自建应用不用创建公网的回调地址，直接本地使用websocket客户端连上这个转发地址
 
 
 # 设计
@@ -13,15 +13,33 @@
 ## 安全性
 1. 飞书回调消息都是加密的，只能由websocket客户端自己解密，转发服务是透明的。
 2. 如何确保自己的channel不会被别人恶意使用？
-  2.1. 需要引入一个帐号注册机制，每次创建应用的时候，生成一对<appid, appsecret>
-  2.2. 这里使用appid作为channel，客户使用appsecret才能连上这个channel这个channel
+> 使用nginx basic auth，nchan支持auth_request，在对应的request里面使用basic auth就能做校验  
 
 
 ## 实现
-- [ ] 部署一个nchan（openresty版本）
-- [ ] 配置一个internal的location，给内部转发飞书消息使用
-- [ ] 配置一个location，作为飞书webhook转发（处理消息转发逻辑，如果是配置连接，就重定向到nchan_publisher_upstream_request等待客户端返回challenge给飞书）
-- [ ] 配置一个nchan_publisher_upstream_request的location，接收客户端消息把内容返回给飞书
+- [x] 部署一个nchan（openresty版本）
+- [x] 配置一个internal的location，给内部转发飞书消息使用
+- [x] 配置一个location，作为飞书webhook转发（处理消息转发逻辑，如果是配置连接，就重定向到request_id对应的channel等待客户端返回challenge给飞书）
 
 
+# 使用
+
+## python sdk
+```
+pip install wslarkbot
+
+from wslarkbot import Client, Bot
+
+class MyBot(Bot):
+    def on_message(self, data, raw_message, **kwargs):
+        # 定义每一个机器人拿到消息后的处理逻辑
+        print('on_message', self.app_id, data, raw_message)
+
+bot1 = MyBot('cli_a4593e8702c6100d')
+bot2 = MyBot('cli_a5993f93f3789013')
+
+# 一个websocket连接，支持同时监听多个机器人回调消息
+client = Client(bot1, bot2)
+client.start(False)
+```
 
