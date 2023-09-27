@@ -111,16 +111,21 @@ class Bot(object):
                 if self.verification_token != data['token']:
                     raise Exception('invalide token')
             return self.url_verification({'body': data})
+        self.on_message(data, message)
 
     def _decrypt_data(self, encrypt_key, encrypt_data):
         cipher = AESCipher(encrypt_key)
         return json.loads(cipher.decrypt_string(encrypt_data))
 
+    def on_message(self, data, *args, **kwargs):
+        pass
+
 
 class Client(object):
 
-    def __init__(self, *bot_id, bot_ids=list(), server=WS_LARK_PROXY_SERVER, protocol=WS_LARK_PROXY_PROTOCOL):
-        self.bot_ids = list(bot_id) + bot_ids
+    def __init__(self, *bot, bots=list(), server=WS_LARK_PROXY_SERVER, protocol=WS_LARK_PROXY_PROTOCOL):
+        self.bots = list(bot) + bots
+        self.bots_map = {b.app_id: b for b in self.bots}
         self.server = server
         self.protocol = protocol
         self.ws_protocol = 'wss' if protocol == 'https' else 'ws'
@@ -135,58 +140,32 @@ class Client(object):
     def start(self, debug=False):
         if debug:
             websocket.enableTrace(True)
-        proxy_url = self.get_server_url(*self.bot_ids, ws=True)
+        proxy_url = self.get_server_url(*[b.app_id for b in self.bots], ws=True)
         app = websocket.WebSocketApp(proxy_url, on_message=self._on_message)
         app.run_forever()
 
-    def get_app_secret(self, app_id):
-        raise NotImplementedError()
-
-    def get_encrypt_key(self, app_id):
-        return None
-
-    def get_verification_token(self, app_id):
-        return None
-
-    def on_message(self, message, bot):
-        pass
-
     def _on_message(self, wsapp, message):
         message = json.loads(message)
-
         app_id = message['headers']['x-app-id']
-
-        bot = Bot(
-            app_id,
-            app_secret=self.get_app_secret(app_id),
-            encrypt_key=self.get_encrypt_key(app_id),
-            verification_token=self.get_verification_token(app_id),
-        )
-        result = bot.process_message(message)
-        if result:
-            request_id = message['headers']['x-request-id']
-            url = self.get_server_url(request_id)
-            res = httpx.post(url, json=result)
-            logging.debug("res %r", res.text)
-        # user define
-        self.on_message(message, bot)
+        bot = self.bots_map.get(app_id)
+        if bot:
+            result = bot.process_message(message)
+            if result:
+                request_id = message['headers']['x-request-id']
+                url = self.get_server_url(request_id)
+                res = httpx.post(url, json=result)
+                logging.debug("res %r", res.text)
 
 
 if __name__ == "__main__":
 
-    class MyClient(Client):
-        def get_app_secret(self, app_id):
-            # TODO return real app_secret
-            return ''
-        def get_encrypt_key(self, app_id):
-            return 'e-fJKrqNbSz9NqSWL5'
-        def get_verification_token(self, app_id):
-            return 'v-Ohw8k6KwVynNmzXX'
+    class MyBot(Bot):
+        def on_message(self, data, *args, **kwargs):
+            print('on_message', self.app_id, data)
 
-        def on_message(self, message, bot):
-            print(message)
-
-    client = MyClient('cli_a4593e8702c6100d', 'cli_a5993f93f3789013')
-    client.start(True)
+    bot1 = MyBot('cli_a4593e8702c6100d', encrypt_key='e-fJKrqNbSz9NqSWL5')
+    bot2 = MyBot('cli_a5993f93f3789013', encrypt_key='e-fJKrqNbSz9NqSWL5')
+    client = Client(bot1, bot2)
+    client.start(False)
 
 
