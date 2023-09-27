@@ -199,30 +199,3 @@ class Client(object):
         except Exception as e:
             logging.exception(e)
 
-
-if __name__ == "__main__":
-
-    from message import *
-
-    class MyBot(Bot):
-        def on_message(self, data, *args, **kwargs):
-            print('on_message', self.app_id, data)
-            if 'header' in data:
-                if data['header']['event_type'] == 'im.message.receive_v1' and data['event']['message']['message_type'] == 'text':
-                    message_id = data['event']['message']['message_id']
-                    content = json.loads(data['event']['message']['content'])
-                    text = content['text']
-                    self.reply_text(message_id, 'reply: ' + text)
-                    self.reply_card(message_id, FeishuMessageCard(
-                        FeishuMessageDiv('reply'),
-                        FeishuMessageHr(),
-                        FeishuMessageDiv(text),
-                        FeishuMessageNote(FeishuMessagePlainText('🤖'))
-                    ))
-
-    bot1 = MyBot('cli_a4593e8702c6100d', app_secret='', encrypt_key='')
-    bot2 = MyBot('cli_a5993f93f3789013', app_secret='', encrypt_key='')
-    client = Client(bot1, bot2)
-    client.start(False)
-
-

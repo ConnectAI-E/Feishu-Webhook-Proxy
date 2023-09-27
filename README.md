@@ -49,8 +49,8 @@ class MyBot(Bot):
                     FeishuMessageNote(FeishuMessagePlainText('🤖'))
                 ))
 
-bot1 = MyBot('cli_a4593e8702c6100d')
-bot2 = MyBot('cli_a5993f93f3789013')
+bot1 = MyBot('cli_xxx', app_secret='xxx', encrypt_key='xxx')
+bot2 = MyBot('cli_xxx', app_secret='xxx', encrypt_key='xxx')
 
 # 一个websocket连接，支持同时监听多个机器人回调消息
 client = Client(bot1, bot2)
