@@ -117,6 +117,46 @@ class Bot(object):
         cipher = AESCipher(encrypt_key)
         return json.loads(cipher.decrypt_string(encrypt_data))
 
+    def send(self, receive_id, content, msg_type='text', receive_id_type='open_id'):
+        # https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message/create
+        url = f"{self.host}/open-apis/im/v1/messages?receive_id_type={receive_id_type}"
+        data = {
+            'receive_id': receive_id,
+            'content': json.dumps(content),
+            'msg_type': msg_type,
+        }
+        return self.post(url, json=data)
+
+    def update(self, message_id, content):
+        # https://open.feishu.cn/open-apis/im/v1/messages/:message_id
+        url = f"{self.host}/open-apis/im/v1/messages/{message_id}"
+        body = { 'content': json.dumps(content) }
+        return self.request('PATCH', url, json=body)
+
+    def reply(self, message_id, content, msg_type='text'):
+        # https://open.feishu.cn/document/server-docs/im-v1/message/reply
+        url = f"{self.host}/open-apis/im/v1/messages/{message_id}/reply"
+        data = {
+            'content': json.dumps(content),
+            'msg_type': msg_type,
+        }
+        return self.post(url, json=data)
+
+    def reply_text(self, message_id, text):
+        return self.reply(message_id, {'text': text}, msg_type='text')
+
+    def send_text(self, receive_id, text, receive_id_type='open_id'):
+        return self.send(receive_id, {'text': text}, receive_id_type=receive_id_type, msg_type='text')
+
+    def send_card(self, receive_id, content, receive_id_type='open_id'):
+        return self.send(receive_id, content, receive_id_type=receive_id_type, msg_type='interactive')
+
+    def reply_card(self, message_id, content):
+        return self.reply(message_id, content, msg_type='interactive')
+
+    async def update_card(self, message_id, content):
+        return self.update(message_id, content)
+
     def on_message(self, data, *args, **kwargs):
         pass
 
@@ -145,26 +185,43 @@ class Client(object):
         app.run_forever()
 
     def _on_message(self, wsapp, message):
-        message = json.loads(message)
-        app_id = message['headers']['x-app-id']
-        bot = self.bots_map.get(app_id)
-        if bot:
-            result = bot.process_message(message)
-            if result:
-                request_id = message['headers']['x-request-id']
-                url = self.get_server_url(request_id)
-                res = httpx.post(url, json=result)
-                logging.debug("res %r", res.text)
+        try:
+            message = json.loads(message)
+            app_id = message['headers']['x-app-id']
+            bot = self.bots_map.get(app_id)
+            if bot:
+                result = bot.process_message(message)
+                if result:
+                    request_id = message['headers']['x-request-id']
+                    url = self.get_server_url(request_id)
+                    res = httpx.post(url, json=result)
+                    logging.debug("res %r", res.text)
+        except Exception as e:
+            logging.exception(e)
 
 
 if __name__ == "__main__":
 
+    from message import *
+
     class MyBot(Bot):
         def on_message(self, data, *args, **kwargs):
             print('on_message', self.app_id, data)
+            if 'header' in data:
+                if data['header']['event_type'] == 'im.message.receive_v1' and data['event']['message']['message_type'] == 'text':
+                    message_id = data['event']['message']['message_id']
+                    content = json.loads(data['event']['message']['content'])
+                    text = content['text']
+                    self.reply_text(message_id, 'reply: ' + text)
+                    self.reply_card(message_id, FeishuMessageCard(
+                        FeishuMessageDiv('reply'),
+                        FeishuMessageHr(),
+                        FeishuMessageDiv(text),
+                        FeishuMessageNote(FeishuMessagePlainText('🤖'))
+                    ))
 
-    bot1 = MyBot('cli_a4593e8702c6100d', encrypt_key='e-fJKrqNbSz9NqSWL5')
-    bot2 = MyBot('cli_a5993f93f3789013', encrypt_key='e-fJKrqNbSz9NqSWL5')
+    bot1 = MyBot('cli_a4593e8702c6100d', app_secret='', encrypt_key='')
+    bot2 = MyBot('cli_a5993f93f3789013', app_secret='', encrypt_key='')
     client = Client(bot1, bot2)
     client.start(False)
 

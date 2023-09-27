@@ -28,18 +28,32 @@
 ```
 pip install wslarkbot
 
-from wslarkbot import Client, Bot
+from wslarkbot import *
 
 class MyBot(Bot):
     def on_message(self, data, raw_message, **kwargs):
         # 定义每一个机器人拿到消息后的处理逻辑
         print('on_message', self.app_id, data, raw_message)
+        if 'header' in data:
+            if data['header']['event_type'] == 'im.message.receive_v1' and data['event']['message']['message_type'] == 'text':
+                message_id = data['event']['message']['message_id']
+                content = json.loads(data['event']['message']['content'])
+                text = content['text']
+                # 测试回复消息，初始化bot的时候，需要配置app_secret才能发出去消息
+                self.reply_text(message_id, 'reply: ' + text)
+                # 回复卡片消息
+                self.reply_card(message_id, FeishuMessageCard(
+                    FeishuMessageDiv('reply'),
+                    FeishuMessageHr(),
+                    FeishuMessageDiv(text),
+                    FeishuMessageNote(FeishuMessagePlainText('🤖'))
+                ))
 
 bot1 = MyBot('cli_a4593e8702c6100d')
 bot2 = MyBot('cli_a5993f93f3789013')
 
 # 一个websocket连接，支持同时监听多个机器人回调消息
 client = Client(bot1, bot2)
-client.start(False)
+client.start()
 ```
 
