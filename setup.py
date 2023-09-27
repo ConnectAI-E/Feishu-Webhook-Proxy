@@ -15,7 +15,7 @@ setup(
     },
     author="lloydzhou@gmail..com",
     license="BSD",
-    keywords=["Feishu", "Lark", "Webhook", "Websocket", "Bot"]
+    keywords=["Feishu", "Lark", "Webhook", "Websocket", "Bot"],
     packages=find_packages(),
     zip_safe=False,
 )
