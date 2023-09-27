@@ -85,9 +85,19 @@ class Bot(object):
         logging.debug('url_verification %r', challenge)
         return {'challenge': challenge}
 
+    def _validate(self, verification_token, encrypt_key, message):
+        timestamp = message['headers']['x-lark-request-timestamp']
+        nonce = message['headers']['x-lark-request-nonce']
+        signature = message['headers']['x-lark-signature']
+        body = json.dumps(message['body'], separators=(',', ':')).encode()
+        bytes_b = (timestamp + nonce + encrypt_key).encode("utf-8") + body
+        hexdigest = hashlib.sha256(bytes_b).hexdigest()
+        if signature != hexdigest:
+            raise Exception('invalide signature')
+
     def process_message(self, message):
         # TODO validate message
-        # self._validate(self.verification_token, self.encrypt_key)
+        self._validate(self.verification_token, self.encrypt_key, message)
 
         if 'encrypt' in message['body']:
             data = self._decrypt_data(self.encrypt_key, message['body']['encrypt'])
@@ -114,7 +124,7 @@ class Client(object):
         return '{}://{}/sub/{}'.format(
             self.ws_protocol if ws else self.protocol,
             self.server,
-            ''.join(channels)
+            ','.join(channels)
         )
 
     def start(self, debug=False):
@@ -152,7 +162,7 @@ class Client(object):
             request_id = message['headers']['x-request-id']
             url = self.get_server_url(request_id)
             res = httpx.post(url, json=result)
-            print('res', res.text)
+            logging.debug("res %r", res.text)
         # user define
         self.on_message(message, bot)
 
@@ -168,10 +178,10 @@ if __name__ == "__main__":
         def get_verification_token(self, app_id):
             return 'v-Ohw8k6KwVynNmzXX'
 
-        def on_message(message, bot):
+        def on_message(self, message, bot):
             print(message)
 
-    client = MyClient('cli_a4593e8702c6100d')
+    client = MyClient('cli_a4593e8702c6100d', 'cli_a5993f93f3789013')
     client.start(True)
 
 
