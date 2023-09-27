@@ -86,6 +86,10 @@ class Bot(object):
         return {'challenge': challenge}
 
     def _validate(self, verification_token, encrypt_key, message):
+        if 'token' in message['body'] and message['body']['token'] != verification_token:
+            raise Exception('invalide token')
+        if not encrypt_key:
+            return
         timestamp = message['headers']['x-lark-request-timestamp']
         nonce = message['headers']['x-lark-request-nonce']
         signature = message['headers']['x-lark-signature']
@@ -138,13 +142,13 @@ class Client(object):
         raise NotImplementedError()
 
     def get_encrypt_key(self, app_id):
-        raise NotImplementedError()
+        return None
 
     def get_verification_token(self, app_id):
-        raise NotImplementedError()
+        return None
 
     def on_message(self, message, bot):
-        raise NotImplementedError()
+        pass
 
     def _on_message(self, wsapp, message):
         message = json.loads(message)
