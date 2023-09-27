@@ -85,10 +85,8 @@ class Bot(object):
         logging.debug('url_verification %r', challenge)
         return {'challenge': challenge}
 
-    def _validate(self, verification_token, encrypt_key, message):
-        if 'token' in message['body'] and message['body']['token'] != verification_token:
-            raise Exception('invalide token')
-        if not encrypt_key:
+    def _validate(self, encrypt_key, message):
+        if not encrypt_key or not message['headers'].get('x-lark-signature'):
             return
         timestamp = message['headers']['x-lark-request-timestamp']
         nonce = message['headers']['x-lark-request-nonce']
@@ -101,7 +99,7 @@ class Bot(object):
 
     def process_message(self, message):
         # TODO validate message
-        self._validate(self.verification_token, self.encrypt_key, message)
+        self._validate(self.encrypt_key, message)
 
         if 'encrypt' in message['body']:
             data = self._decrypt_data(self.encrypt_key, message['body']['encrypt'])
@@ -109,6 +107,9 @@ class Bot(object):
             data = message['body']
 
         if data.get('type') == 'url_verification':
+            if self.verification_token and 'token' in data:
+                if self.verification_token != data['token']:
+                    raise Exception('invalide token')
             return self.url_verification({'body': data})
 
     def _decrypt_data(self, encrypt_key, encrypt_data):
