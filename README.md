@@ -57,3 +57,65 @@ client = Client(bot1, bot2)
 client.start()
 ```
 
+## 集成openai
+> test_openai.py文件中
+1. 继承Bot增加自己处理消息的回调
+```
+class TextMessageBot(Bot):
+    def on_message(self, data, *args, **kwargs):
+        if 'header' in data:
+            if data['header']['event_type'] == 'im.message.receive_v1' and data['event']['message']['message_type'] == 'text':
+                content = json.loads(data['event']['message']['content'])
+                if self.app:
+                    return self.app.process_text_message(text=content['text'], **data['event']['message'])
+
+
+```
+2. 写一个应用：处理文本消息
+```
+class Application(object):
+    def process_text_message(self, text, message_id, **kwargs):
+        if text == '/help' or text == '帮助':
+            self.bot.reply_card(
+                message_id,
+                FeishuMessageCard(
+                    FeishuMessageDiv('👋 你好呀，我是一款基于OpenAI技术的智能聊天机器人'),
+                    FeishuMessageHr(),
+                    FeishuMessageDiv('🎒 **需要更多帮助**\n文本回复 *帮助* 或 */help*', tag='lark_md'),
+                    header=FeishuMessageCardHeader('🎒需要帮助吗？'),
+                )
+            )
+        elif text:
+            chat = ChatOpenAI(
+                callbacks=[OpenAICallbackHandler(self.bot, message_id)],
+                **self.openai_options
+            )
+            system_message = [SystemMessage(content=self.system_role)] if self.system_role else []
+            chat_history = []  # TODO
+            messages = system_message + chat_history + [HumanMessage(content=text)]
+            message = chat(messages)
+            logging.debug("reply message %r", message)
+        else:
+            logging.warn("empty text", text)
+```
+3. 初始化应用，启动机器人
+
+```
+if __name__ == "__main__":
+    app = Application(
+        openai_api_base='',
+        openai_api_key='',
+        app_id='',
+        app_secret='',
+        encrypt_key='',
+        verification_token='',
+    )
+    client = Client(app.bot)
+    client.start(True)  # debug mode
+```
+
+### 运行示例
+![image](https://github.com/ConnectAI-E/Feishu-Webhook-Proxy/assets/1826685/aed6fa25-77c3-428a-8bee-e399b4ab3901)
+
+
+
