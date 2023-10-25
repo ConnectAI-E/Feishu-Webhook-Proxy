@@ -99,7 +99,6 @@ class Application(object):
             logging.warn("empty text", text)
 ```
 3. 初始化应用，启动机器人
-
 ```
 if __name__ == "__main__":
     app = Application(
@@ -112,9 +111,14 @@ if __name__ == "__main__":
     )
     client = Client(app.bot)
     client.start(True)  # debug mode
+
 ```
 
 ### 运行示例
+```
+pip install wslarkbot langchain openai
+python test_openai.py
+```
 ![image](https://github.com/ConnectAI-E/Feishu-Webhook-Proxy/assets/1826685/531c8ff5-3b46-4c15-9600-e02dae55cee2)
 
 
