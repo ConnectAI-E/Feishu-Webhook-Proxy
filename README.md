@@ -115,7 +115,7 @@ if __name__ == "__main__":
 ```
 
 ### 运行示例
-![image](https://github.com/ConnectAI-E/Feishu-Webhook-Proxy/assets/1826685/aed6fa25-77c3-428a-8bee-e399b4ab3901)
+![image](https://github.com/ConnectAI-E/Feishu-Webhook-Proxy/assets/1826685/531c8ff5-3b46-4c15-9600-e02dae55cee2)
 
 
 
