@@ -76,6 +76,7 @@ class Application(object):
             temperature=temperature,
             streaming=streaming,
         )
+        self.chat_history = []
 
     def process_text_message(self, text, message_id, **kwargs):
         if text == '/help' or text == '帮助':
@@ -94,10 +95,12 @@ class Application(object):
                 **self.openai_options
             )
             system_message = [SystemMessage(content=self.system_role)] if self.system_role else []
-            chat_history = []  # TODO
-            messages = system_message + chat_history + [HumanMessage(content=text)]
+            messages = system_message + self.chat_history + [HumanMessage(content=text)]
             message = chat(messages)
-            logging.debug("reply message %r", message)
+            # save chat_history
+            self.chat_history.append(HumanMessage(content=text))
+            self.chat_history.append(message)
+            logging.info("reply message %r\nchat_history %r", message, self.chat_history)
         else:
             logging.warn("empty text", text)
 
@@ -112,6 +115,6 @@ if __name__ == "__main__":
         verification_token='',
     )
     client = Client(app.bot)
-    client.start(True)  # debug mode
+    client.start(False)  # debug mode
 
 
