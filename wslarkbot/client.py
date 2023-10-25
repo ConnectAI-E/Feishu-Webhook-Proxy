@@ -1,3 +1,4 @@
+import sys
 import json
 import logging
 import httpx
@@ -181,6 +182,7 @@ class Client(object):
         if debug:
             websocket.enableTrace(True)
         proxy_url = self.get_server_url(*[b.app_id for b in self.bots], ws=True)
+        print(f"hooks: \n{''.join([self.protocol + '://' + self.server + '/hook/' + b.app_id for b in self.bots])}", file=sys.stderr)
         app = websocket.WebSocketApp(proxy_url, on_message=self._on_message)
         app.run_forever()
 

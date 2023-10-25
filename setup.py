@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-VERSION = '0.1.5'
+VERSION = '0.1.7'
 
 with open('README.md') as f:
     LONG_DESCRIPTION = f.read()
@@ -23,4 +23,9 @@ setup(
     keywords=["Feishu", "Lark", "Webhook", "Websocket", "Bot"],
     packages=find_packages(),
     zip_safe=False,
+    install_requires=[
+        "websocket",
+        "pycrypto",
+        "httpx"
+    ]
 )
