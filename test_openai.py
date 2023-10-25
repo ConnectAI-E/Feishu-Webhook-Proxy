@@ -106,15 +106,23 @@ class Application(object):
 
 
 if __name__ == "__main__":
-    app = Application(
-        openai_api_base='',
-        openai_api_key='',
-        app_id='',
-        app_secret='',
-        encrypt_key='',
-        verification_token='',
-    )
-    client = Client(app.bot)
-    client.start(False)  # debug mode
+    import click
+    @click.command()
+    @click.option('--openai_api_base', prompt="OpenAI API BASE", help='Your openai_api_base')
+    @click.option('--openai_api_key', prompt="OpenAI API KEY", help='Your openai_api_key')
+    @click.option('--system_role', default='', prompt="SYSTEM ROLE", help='OpenAI system_role')
+    @click.option('--temperature', default=0.7, prompt="TEMPERATURE", help='OpenAI temperature')
+    @click.option('--app_id', prompt="APP ID", help='Your app_id')
+    @click.option('--app_secret', default='', prompt="APP SECRET", help='Your app_secret')
+    @click.option('--verification_token', default='',
+                  prompt="VERIFICATION TOKEN", help='Your verification_token')
+    @click.option('--encrypt_key', prompt="ENCRYPT KEY", help='Your encrypt_key')
+    @click.option('--debug', default=False, prompt="DEBUG MODE", help='debug mode')
+    def main(debug, **kwargs):
+        app = Application(**kwargs)
+        client = Client(app.bot)
+        client.start(debug)  # debug mode
+
+    main()
 
 

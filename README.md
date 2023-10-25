@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
 ### 运行示例
 ```
-pip install wslarkbot langchain openai
+pip install wslarkbot langchain openai click
 python test_openai.py
 ```
 ![image](https://github.com/ConnectAI-E/Feishu-Webhook-Proxy/assets/1826685/531c8ff5-3b46-4c15-9600-e02dae55cee2)
