@@ -9,7 +9,8 @@ from .message import *
 @click.option('--verification_token', default='',
               prompt="VERIFICATION TOKEN", help='Your verification_token')
 @click.option('--encrypt_key', prompt="ENCRYPT KEY", help='Your encrypt_key')
-def main(app_id, app_secret, verification_token, encrypt_key):
+@click.option('--debug', default=False, prompt="DEBUG MODE", help='debug mode')
+def main(app_id, app_secret, verification_token, encrypt_key, debug):
     class MyBot(Bot):
         def on_message(self, data, *args, **kwargs):
             print('on_message', self.app_id, data)
@@ -28,7 +29,7 @@ def main(app_id, app_secret, verification_token, encrypt_key):
         verification_token=verification_token
     )
     client = Client(bot)
-    client.start(True)
+    client.start(debug)
 
 
 if __name__ == "__main__":
