@@ -183,11 +183,12 @@ class Client(object):
             websocket.enableTrace(True)
         proxy_url = self.get_server_url(*[b.app_id for b in self.bots], ws=True)
         print(f"hooks: \n{''.join([self.protocol + '://' + self.server + '/hook/' + b.app_id for b in self.bots])}", file=sys.stderr)
+        def run_forever(*args): app.run_forever()
         app = websocket.WebSocketApp(
             proxy_url, on_message=self._on_message,
-            on_error=self._on_error, on_close=self._on_close,
+            on_error=self._on_error, on_close=run_forever,
         )
-        app.run_forever()
+        run_forever()
 
     def _on_message(self, wsapp, message):
         try:
@@ -206,7 +207,6 @@ class Client(object):
 
     def _on_error(self, wsapp, error):
         logging.error("error %r", error)
-
-    def _on_close(self, wsapp, close_status_code, close_msg):
-        logging.error("on_close %r %r", close_status_code, close_msg)
+        if isinstance(error, KeyboardInterrupt):
+            sys.exit()
 
