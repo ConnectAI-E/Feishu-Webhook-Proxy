@@ -27,7 +27,11 @@
 > 这样所有的消息可以通过`org_<name>`一个channel推送，这种模式下启动服务的时候可以不用提前注册所有的bot，可以动态的加入新的bot进去
 - [x] 对org_<name>的channel增加basic auth
 - [x] hook链接转发消息兼容organization
-- [ ] 新增一个支持organization的client
+- [x] 新增一个支持organization的client
+
+```
+client = Client(bot1, bot2, org_name='org_lloyd', org_passwd='passwd')
+```
 
 
 # 使用
