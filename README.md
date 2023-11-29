@@ -22,6 +22,14 @@
 - [x] 配置一个location，作为飞书webhook转发（处理消息转发逻辑，如果是配置连接，就重定向到request_id对应的channel等待客户端返回challenge给飞书）
 
 
+# organization
+> 使用一个organization对当前组织下面的所有bot进行管理
+> 这样所有的消息可以通过`org_<name>`一个channel推送，这种模式下启动服务的时候可以不用提前注册所有的bot，可以动态的加入新的bot进去
+- [x] 对org_<name>的channel增加basic auth
+- [x] hook链接转发消息兼容organization
+- [ ] 新增一个支持organization的client
+
+
 # 使用
 
 ## python sdk
