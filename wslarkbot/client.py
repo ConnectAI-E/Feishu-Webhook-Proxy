@@ -192,7 +192,8 @@ class Client(object):
         if debug:
             websocket.enableTrace(True)
         proxy_url = self.get_server_url(*[b.app_id for b in self.bots], ws=True)
-        print(f"hooks: \n{'\n'.join([self.protocol + '://' + self.server + '/' + (self.org_name if self.is_org else 'hook') +  '/' + b.app_id for b in self.bots])}", file=sys.stderr)
+        hooks = '\n'.join([self.protocol + '://' + self.server + '/' + (self.org_name if self.is_org else 'hook') +  '/' + b.app_id for b in self.bots])
+        print(f"hooks: \n{hooks}", file=sys.stderr)
         def run_forever(*args): app.run_forever()
         app = websocket.WebSocketApp(
             proxy_url,
