@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-VERSION = '0.2.3'
+VERSION = '0.2.4'
 
 with open('README.md') as f:
     LONG_DESCRIPTION = f.read()
@@ -19,7 +19,7 @@ setup(
         "Issue tracker": "http://github.com/connectAI-E/Feishu-Webhook-Proxy/issues",
     },
     author="lloydzhou@gmail..com",
-    license="BSD",
+    license="MIT",
     keywords=["Feishu", "Lark", "Webhook", "Websocket", "Bot"],
     packages=find_packages(),
     zip_safe=False,
