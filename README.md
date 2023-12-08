@@ -1,6 +1,6 @@
-# Feishu-Webhook-Proxy
+# Feishu(Lark)-Webhook-Proxy
 
-1. 将飞书webhook代理成websocket
+1. 将飞书(lark)webhook代理成websocket
 2. 企业自建应用不用创建公网的回调地址，直接本地使用websocket客户端连上这个转发地址
 
 
@@ -38,9 +38,9 @@ client = Client(bot1, bot2, org_name='org_lloyd', org_passwd='passwd')
 
 ## python sdk
 ```
-pip install wslarkbot
+pip install ca-lark-websocket
 
-from wslarkbot import *
+from connectai.lark.websocket import *
 
 class MyBot(Bot):
     def on_message(self, data, raw_message, **kwargs):
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
 ### 运行示例
 ```
-pip install wslarkbot langchain openai click
+pip install ca-lark-websocket langchain openai click
 python test_openai.py
 ```
 ![image](https://github.com/ConnectAI-E/Feishu-Webhook-Proxy/assets/1826685/531c8ff5-3b46-4c15-9600-e02dae55cee2)

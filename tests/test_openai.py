@@ -1,5 +1,5 @@
 import logging
-from wslarkbot import *
+from connectai.lark.websocket import *
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
 from langchain.callbacks.base import BaseCallbackHandler
