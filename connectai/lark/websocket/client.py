@@ -6,7 +6,7 @@ import websocket
 import base64
 from connectai.lark.sdk import *
 
-WS_LARK_PROXY_SERVER = 'feishu.forkway.cn'
+WS_LARK_PROXY_SERVER = 'feishu.ai2e.cn'
 WS_LARK_PROXY_PROTOCOL = 'https'
 
 
